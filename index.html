@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTP CRM — Gérez vos chantiers. Développez votre entreprise.</title>
+  <meta name="description" content="SaaS B2B de gestion tout-en-un pour les entreprises de construction, rénovation et artisans en Algérie : prospects, devis DZD, chantiers, planning et trésorerie.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z'/></svg>">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- App Shell -->
+  <div class="app" id="appShell">
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" id="brandIcon">
+          <!-- Building Icon -->
+        </div>
+        <div class="sidebar-brand-text">
+          <span class="sidebar-brand-name">BTP CRM</span>
+          <span class="sidebar-brand-tagline" id="brandTagline">Algérie • Chantiers & Artisans</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <!-- Injected dynamically based on language and active page -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user" id="sidebarUserBtn" title="Gérer le compte et les rôles">
+          <div class="sidebar-user-avatar" id="sidebarUserAvatar">AM</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Amine Mokhtar</div>
+            <div class="sidebar-user-role" id="sidebarUserRole">Gérant / Fondateur</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Container -->
+    <div class="main">
+      
+      <!-- Top Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="header-toggle" id="sidebarToggle" aria-label="Menu latéral">
+            <!-- Menu icon -->
+          </button>
+          
+          <div class="header-breadcrumb" id="headerBreadcrumb">
+            <span id="breadcrumbSection">Commercial</span> / <span id="breadcrumbCurrent">Tableau de bord</span>
+          </div>
+
+          <div class="header-search">
+            <span class="header-search-icon" id="searchIconSpan"></span>
+            <input type="text" id="globalSearchInput" placeholder="Rechercher client, chantier, devis... (Ctrl+K)" autocomplete="off">
+            <span class="header-search-kbd">⌘K</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Role Switcher for demonstration -->
+          <div class="dropdown" id="roleSwitcherDropdown">
+            <button class="btn btn-secondary btn-sm" id="roleSwitcherBtn" style="font-size: 11px; padding: 4px 8px;">
+              <span id="activeRoleLabel">Gérant</span>
+              <span id="roleChevronSpan"></span>
+            </button>
+            <div class="dropdown-menu" id="roleSwitcherMenu">
+              <!-- Roles options -->
+            </div>
+          </div>
+
+          <!-- Language Switcher FR / AR -->
+          <button class="header-lang-toggle" id="langToggleBtn" title="Changer de langue / تغيير اللغة">
+            <span id="langToggleText">عربي</span>
+          </button>
+
+          <!-- Theme Switcher Light / Dark -->
+          <button class="header-theme-toggle" id="themeToggleBtn" title="Basculer Mode Sombre / Clair">
+            <span id="themeToggleIcon"></span>
+          </button>
+
+          <!-- Notifications button -->
+          <button class="header-action" id="headerNotificationsBtn" title="Notifications">
+            <span id="bellIconSpan"></span>
+            <span class="header-notification-dot" id="headerNotifDot"></span>
+          </button>
+
+          <div class="header-divider"></div>
+
+          <!-- Quick User / Company Dropdown -->
+          <div class="header-profile" id="headerProfileBtn" title="Menu Utilisateur">
+            <div class="header-profile-avatar" id="headerAvatar">AM</div>
+            <span class="nowrap" style="font-size: var(--text-sm); font-weight: 500;" id="headerUserGreeting">Atlas BTP</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Content -->
+      <main class="content" id="mainContent">
+        <!-- Rendered dynamically by js/app.js -->
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-nav" id="mobileNav">
+    <!-- Injected dynamically -->
+  </nav>
+
+  <!-- Global Modal Container -->
+  <div class="modal-backdrop" id="globalModalBackdrop">
+    <div class="modal" id="globalModal">
+      <!-- Injected modal content -->
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main JavaScript App Entrypoint -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
