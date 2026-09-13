@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Reverse Proxy Traefik v3
+  # ============================================================================
+  traefik:
+    image: traefik:v3.1
+    container_name: crm_btp_traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"       # Application Entrypoint
+      - "8081:8080"   # Traefik Dashboard (dev)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./infrastructure/traefik/dynamic.yml:/etc/traefik/dynamic/dynamic.yml:ro
+    networks:
+      - crm_network
+
+  # ============================================================================
+  # PostgreSQL 16 (Multi-tenant DB)
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: crm_btp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-crm_btp}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_secure_pwd_2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./backend/migrations/000001_init_schema.up.sql:/docker-entrypoint-initdb.d/02-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-crm_btp}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crm_network
+
+  # ============================================================================
+  # Redis 7 (Tokens & Sessions Blacklist & Rate Limiting)
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: crm_btp_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - crm_network
+
+  # ============================================================================
+  # Backend Go Gin API
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crm_btp_backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: "8080"
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_secure_pwd_2026}@postgres:5432/${POSTGRES_DB:-crm_btp}?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-minimum-32-chars-btp-crm-2026!}
+      JWT_ISSUER: crm-btp-api
+      JWT_ACCESS_EXPIRY_MINUTES: 15
+      JWT_REFRESH_EXPIRY_DAYS: 7
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+    networks:
+      - crm_network
+
+  # ============================================================================
+  # Frontend Angular App (Nginx production build)
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: crm_btp_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    networks:
+      - crm_network
+
+networks:
+  crm_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
